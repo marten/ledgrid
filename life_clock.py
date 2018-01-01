@@ -14,14 +14,16 @@ COLS = 20
 
 rand = random.Random()
 
-class Color(namedtuple('Color', ['red', 'green', 'blue'])):
+class Color(namedtuple('Color', ['hue', 'saturation', 'value'])):
     def to_int(self):
-        return (255 << 24) | (self.green << 16) | (self.red << 8) | self.blue
+        r, g, b = colorsys.hsv_to_rgb(self.hue, self.saturation, self.value)
+        return (255 << 24) | (int(255 * g) << 16) | (int(255 * r) << 8) | int(255 * b)
 
-    def __mul__(self, factor):
-        def d(c):
-            return min(255, max(0, int(factor * c)))
-        return Color(d(self.red), d(self.green), d(self.blue))
+    def mul_saturation(self, factor):
+        return Color(self.hue, self.saturation * factor, self.value)
+
+    def mul_value(self, factor):
+        return Color(self.hue, self.saturation, self.value * factor)
 
 
 class Coords(namedtuple('Coords', ['row', 'col'])):
@@ -35,11 +37,7 @@ class Coords(namedtuple('Coords', ['row', 'col'])):
 class Cell(object):
     def __init__(self, color=None, age=0):
         if color is None:
-            hue = rand.uniform(0, 1)
-            saturation = 1
-            value = 1
-            r, g, b = colorsys.hsv_to_rgb(hue, saturation, value)
-            color = Color(r * 255, g * 255, b * 255)
+            color = Color(rand.uniform(0, 1), 1, 1)
         self.color = color
         self.age = age
 
@@ -150,7 +148,8 @@ def render_grid(grid, display, brightness):
     for row in range(ROWS):
         for col in range(COLS):
             coords = Coords(row, col)
-            display.set(row, col, grid[coords].color * brightness if coords in grid else Color(0, 0, 0))
+            color = grid[coords].color if coords in grid else Color(0, 0, 0)
+            display.set(row, col, color.mul_saturation(math.pow(brightness, 0.5)).mul_value(math.pow(brightness, 3.0)))
     display.show()
 
 
@@ -161,7 +160,7 @@ class Main(object):
         self.display.begin()
 
     def render(self, brightness=1):
-        render_grid(self.grid, self.display, math.pow(brightness, 3.0))
+        render_grid(self.grid, self.display, brightness)
         self.display.show()
         
     def run(self):
