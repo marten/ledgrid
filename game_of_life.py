@@ -1,10 +1,12 @@
 #!/usr/bin/python2
+
 # NeoPixel library strandtest example
 # Author: Tony DiCola (tony@tonydicola.com)
 #
 # Direct port of the Arduino NeoPixel library strandtest example.  Showcases
 # various animations on a strip of NeoPixels.
 
+import math
 import random
 import time
 
@@ -17,7 +19,6 @@ rand = random.Random()
 # LED strip configuration:
 ROWS           = 10
 COLS           = 20
-MAX_AGE        = 32
 LED_COUNT      = ROWS * COLS     # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
@@ -33,7 +34,7 @@ class Color(namedtuple('Color', ['red', 'green', 'blue'])):
         """
         return (255 << 24) | (self.green << 16) | (self.red << 8) | self.blue
 
-    def darkened(self, factor):
+    def __mul__(self, factor):
         def d(c):
             return min(255, max(0, int(factor * c)))
         return Color(d(self.red), d(self.green), d(self.blue))
@@ -82,9 +83,6 @@ class Cell(object):
     def happy_birthday_to_me(self):
         return Cell(self.color, self.age + 1)
 
-    def aged_color(self):
-        return self.color.darkened(max(0, 1 - float(self.age) / (MAX_AGE + 1)))
-
 
 class Grid:
     def __init__(self):
@@ -112,7 +110,7 @@ class Grid:
                 coords = Coords(row, col)
                 num_neighbors = self.count_neighbors(coords)
                 if coords in self:
-                    if self[coords].age < MAX_AGE and 2 <= num_neighbors <= 3:
+                    if 2 <= num_neighbors <= 3:
                         new_grid.spawn(coords, self[coords].happy_birthday_to_me())
                 else:
                     if num_neighbors == 3:
@@ -122,6 +120,15 @@ class Grid:
     def is_empty(self):
         return len(self._cells) == 0
 
+    def fingerprint(self):
+        f = 0
+        for row in range(ROWS):
+            for col in range(COLS):
+                f = f << 1
+                if Coords(row, col) in self:
+                    f = f | 1 
+        return f
+
     def randomize(self):
         self.clear()
         for row in range(ROWS):
@@ -130,27 +137,34 @@ class Grid:
                     self.spawn(Coords(row, col), Cell())
 
 
-def render_grid(grid, display):
+def render_grid(grid, display, brightness):
     for row in range(ROWS):
         for col in range(COLS):
             coords = Coords(row, col)
-            display.set(row, col, grid[coords].aged_color() if coords in grid else Color(0, 0, 0))
+            display.set(row, col, grid[coords].color * brightness if coords in grid else Color(0, 0, 0))
     display.show()
     
 
 # Main program logic follows:
 if __name__ == '__main__':
+    seen_fingerprints = set()
+    brightness = 1
+
     grid = Grid()
     grid.randomize()
 
     display = LedGrid(COLS, ROWS)
     display.begin()
-    render_grid(grid, display)
 
     while True:
-        if grid.is_empty():
+        render_grid(grid, display, math.pow(brightness, 3.0))
+        if grid.fingerprint() in seen_fingerprints:
+            brightness -= 0.05
+        if grid.is_empty() or brightness <= 0:
+            time.sleep(1.0)
             grid.randomize()
-            time.sleep(1)
+            seen_fingerprints = set()
+            brightness = 1
+        seen_fingerprints.add(grid.fingerprint())
         grid = grid.advance()
-        render_grid(grid, display)
         time.sleep(0.1)
