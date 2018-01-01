@@ -105,8 +105,8 @@ FONT_STRING = """
 # # ##  # #   #  ## #   #     # # # # # # 
 # #  #    #  #  # # ##  ##    #  #   ##   
 # #  #   #    # ###   # # #  #  # #   #   
-# #  #  #     #   #   # # #  #  # # # # # 
- #  ### ### ##    # ##   #   #   #   #   
+# #  #  #     #   #   # # #  #  # #   # # 
+ #  ### ### ##    # ##   #   #   #  ##   
 000 111 222 333 444 555 666 777 888 999 :
 """
 
@@ -171,8 +171,10 @@ class Main(object):
 
     def show_clock(self):
         self.grid = draw_clock()
-        self.render()
-        time.sleep(3.7)
+        for brightness in range(1, 11):
+            self.render(brightness / 10.0)
+            time.sleep(0.1)
+        time.sleep(2.7)
 
     def apply_game_of_life(self):
         seen_fingerprints = set()
