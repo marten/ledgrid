@@ -93,9 +93,9 @@ class Grid:
                         new_grid.spawn(coords, self[coords].happy_birthday_to_me())
                 else:
                     if num_neighbors == 3:
-                        new_grid.spawn(coords, Cell(
-                            Color.average_color(self.colors_neighbors(coords))
-                            ))
+                        new_grid.spawn(coords, Cell( Color.average_color(
+                            self.colors_neighbors(coords) + [Color.random_color()]
+                            ) ))
         return new_grid
 
     def is_empty(self):
