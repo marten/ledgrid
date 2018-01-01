@@ -1,31 +1,18 @@
 #!/usr/bin/python2
 
-# NeoPixel library strandtest example
-# Author: Tony DiCola (tony@tonydicola.com)
-#
-# Direct port of the Arduino NeoPixel library strandtest example.  Showcases
-# various animations on a strip of NeoPixels.
-
 import colorsys
 import math
 import random
 import time
 
 from collections import namedtuple
-from neopixel import *
+
+from display import Display
+
+ROWS = 10
+COLS = 20
 
 rand = random.Random()
-
-
-# LED strip configuration:
-ROWS           = 10
-COLS           = 20
-LED_COUNT      = ROWS * COLS     # Number of LED pixels.
-LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
-LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
-LED_DMA        = 5       # DMA channel to use for generating signal (try 5)
-LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
-LED_INVERT     = False   # True to invert the signal (when using NPN transistor level shift)
 
 class Color(namedtuple('Color', ['red', 'green', 'blue'])):
     def to_int(self):
@@ -39,31 +26,6 @@ class Color(namedtuple('Color', ['red', 'green', 'blue'])):
         def d(c):
             return min(255, max(0, int(factor * c)))
         return Color(d(self.red), d(self.green), d(self.blue))
-
-class LedGrid:
-    def __init__(self, width, height):
-        self.strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
-        self.width = width
-        self.height = height
-
-    def begin(self):
-        self.strip.begin()
-
-    def show(self):
-        self.strip.show()
-
-    def clear(self):
-        for col in range(0, self.width):
-            for row in range(0, self.height):
-                self.set(row, col, Color(0, 0, 0))
-
-    def set(self, row, col, color):
-        self.strip.setPixelColor(self.index(row, col), color.to_int())
-
-    def index(self, row, col):
-        if row % 2 == 1:
-            col = self.width - col - 1
-        return row * self.width + col
 
 
 class Coords(namedtuple('Coords', ['row', 'col'])):
@@ -150,7 +112,6 @@ def render_grid(grid, display, brightness):
     display.show()
     
 
-# Main program logic follows:
 if __name__ == '__main__':
     seen_fingerprints = set()
     brightness = 1
@@ -158,7 +119,7 @@ if __name__ == '__main__':
     grid = Grid()
     grid.randomize()
 
-    display = LedGrid(COLS, ROWS)
+    display = Display(ROWS, COLS)
     display.begin()
 
     while True:
