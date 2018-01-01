@@ -28,6 +28,6 @@ class Display:
         self.strip.setPixelColor(self.index(row, col), color.to_int())
 
     def index(self, row, col):
-        if row % 2 == 1:
+        if row % 2 == 0:
             col = self.cols - col - 1
-        return row * self.cols + col
+        return self.rows * self.cols - 1 - (row * self.cols + col)
