@@ -6,6 +6,7 @@
 # Direct port of the Arduino NeoPixel library strandtest example.  Showcases
 # various animations on a strip of NeoPixels.
 
+import colorsys
 import math
 import random
 import time
@@ -76,7 +77,11 @@ class Coords(namedtuple('Coords', ['row', 'col'])):
 class Cell(object):
     def __init__(self, color=None, age=0):
         if color is None:
-            color = Color(rand.randint(128, 255), rand.randint(128, 255), rand.randint(128, 255))
+            hue = rand.uniform(0, 1)
+            saturation = 1
+            value = 1
+            r, g, b = colorsys.hsv_to_rgb(hue, saturation, value)
+            color = Color(r * 255, g * 255, b * 255)
         self.color = color
         self.age = age
 
