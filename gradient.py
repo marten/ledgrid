@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 # NeoPixel library strandtest example
 # Author: Tony DiCola (tony@tonydicola.com)
 #
@@ -9,7 +10,9 @@ from neopixel import *
 
 
 # LED strip configuration:
-LED_COUNT      = 200     # Number of LED pixels.
+ROWS           = 10
+COLS           = 20
+LED_COUNT      = ROWS * COLS     # Number of LED pixels.
 LED_PIN        = 18      # GPIO pin connected to the pixels (must support PWM!).
 LED_FREQ_HZ    = 800000  # LED signal frequency in hertz (usually 800khz)
 LED_DMA        = 5       # DMA channel to use for generating signal (try 5)
@@ -53,20 +56,21 @@ class LedGrid:
 
 # Main program logic follows:
 if __name__ == '__main__':
-    grid = LedGrid(20, 10)
+    grid = LedGrid(COLS, ROWS)
     grid.begin()
-    print("Press C-c to quit.")
+    grid.clear()
+    grid.show()
+    b = 0
 
     while True:
-        for col in range(0, 20):
-            for row in range(0, 10):
-                print(row, col)
-                grid.clear()
-                grid.show()
-                time.sleep(2)
-                grid.set(row, col, Color(0, 0, 255))
-                grid.show()
-                time.sleep(2)
+        for col in range(COLS):
+            for row in range(ROWS):
+		r = 255 * row / ROWS
+		g = 255 * col / COLS
+                grid.set(row, col, Color(r, g, b))
+	grid.show()
+	time.sleep(0.1)
+	b = (b + 16) % 256
 
 
 
