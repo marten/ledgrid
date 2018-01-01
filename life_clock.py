@@ -2,6 +2,7 @@
 
 import colorsys
 import math
+import cmath
 import random
 import time
 
@@ -29,6 +30,14 @@ class Color(namedtuple('Color', ['hue', 'saturation', 'value'])):
     def random_color():
         return Color(rand.uniform(0, 1), 1, 1)
         
+    @staticmethod
+    def average_color(colors):
+        hue_sum = 0
+        for color in colors:
+            hue_sum += cmath.exp(1j * (color.hue - 0.5) * 2 * cmath.pi)
+        return Color(
+            cmath.phase(hue_sum / len(colors)) / (2 * cmath.pi) + 0.5,
+            1, 1)
 
 
 class Coords(namedtuple('Coords', ['row', 'col'])):
@@ -69,6 +78,10 @@ class Grid:
     def count_neighbors(self, coords):
         return len([c for c in coords.neighbors() if c in self])
 
+    def colors_neighbors(self, coords):
+        return [self[c].color for c in coords.neighbors() if c in self]
+        
+
     def advance(self):
         new_grid = Grid()
         for row in range(ROWS):
@@ -80,7 +93,9 @@ class Grid:
                         new_grid.spawn(coords, self[coords].happy_birthday_to_me())
                 else:
                     if num_neighbors == 3:
-                        new_grid.spawn(coords, Cell())
+                        new_grid.spawn(coords, Cell(
+                            Color.average_color(self.colors_neighbors(coords))
+                            ))
         return new_grid
 
     def is_empty(self):
