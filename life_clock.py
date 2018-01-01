@@ -25,6 +25,11 @@ class Color(namedtuple('Color', ['hue', 'saturation', 'value'])):
     def mul_value(self, factor):
         return Color(self.hue, self.saturation, self.value * factor)
 
+    @staticmethod 
+    def random_color():
+        return Color(rand.uniform(0, 1), 1, 1)
+        
+
 
 class Coords(namedtuple('Coords', ['row', 'col'])):
     def neighbors(self):
@@ -37,7 +42,7 @@ class Coords(namedtuple('Coords', ['row', 'col'])):
 class Cell(object):
     def __init__(self, color=None, age=0):
         if color is None:
-            color = Color(rand.uniform(0, 1), 1, 1)
+            color = Color.random_color()
         self.color = color
         self.age = age
 
@@ -127,12 +132,13 @@ class Font:
         for char in text:
             char_matrix = self.chars[char]
             char_width = 0
+            char_color = Color.random_color()
             for r in range(len(char_matrix)):
                 char_row = char_matrix[r]
                 char_width = max(char_width, len(char_row))
                 for c in range(len(char_row)):
                     if char_row[c]:
-                        grid.spawn(Coords(row + r, col + c), Cell())
+                        grid.spawn(Coords(row + r, col + c), Cell(char_color))
             col += char_width + 1
 
 FONT = Font(FONT_STRING)
