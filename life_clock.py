@@ -12,6 +12,7 @@ from display import Display
 
 ROWS = 10
 COLS = 20
+RADIATION = 1
 
 rand = random.Random()
 
@@ -94,7 +95,7 @@ class Grid:
                 else:
                     if num_neighbors == 3:
                         new_grid.spawn(coords, Cell( Color.average_color(
-                            self.colors_neighbors(coords) + 2*[Color.random_color()]
+                            self.colors_neighbors(coords) + RADIATION*[Color.random_color()]
                             ) ))
         return new_grid
 
