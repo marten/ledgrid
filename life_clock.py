@@ -145,10 +145,13 @@ class Font:
                 char_matrix[row].append(lines[row][col] != ' ')
 
     def draw_text(self, grid, row, col, text):
+        hue = rand.uniform(0, 1)
+        hue_step = rand.uniform(-0.4, 0.4)
         for char in text:
             char_matrix = self.chars[char]
             char_width = 0
-            char_color = Color.random_color()
+            char_color = Color(hue, 1, 1)
+            hue = (hue + hue_step) % 1
             for r in range(len(char_matrix)):
                 char_row = char_matrix[r]
                 char_width = max(char_width, len(char_row))
