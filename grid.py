@@ -1,5 +1,6 @@
 from collections import namedtuple
 import random
+import math
 from color import Color
 
 class Coords(namedtuple('Coords', ['row', 'col'])):
@@ -61,6 +62,14 @@ class Grid:
                             self.colors_neighbors(coords) + self.radiation*[Color.random_color()]
                             ) ))
         return new_grid
+
+    def render_onto(self, display, brightness):
+        for row in range(self.rows):
+            for col in range(self.cols):
+                coords = Coords(row, col)
+                color = self[coords].color if coords in self else Color(0, 0, 0)
+                display.set(row, col, color.mul_saturation(math.pow(brightness, 0.5)).mul_value(math.pow(brightness, 3.0)))
+        display.show()
 
     def is_empty(self):
         return len(self._cells) == 0
