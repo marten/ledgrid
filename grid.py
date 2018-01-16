@@ -69,7 +69,6 @@ class Grid:
                 coords = Coords(row, col)
                 color = self[coords].color if coords in self else Color(0, 0, 0)
                 display.set(row, col, color.mul_saturation(math.pow(brightness, 0.5)).mul_value(math.pow(brightness, 3.0)))
-        display.show()
 
     def is_empty(self):
         return len(self._cells) == 0
