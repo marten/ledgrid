@@ -15,14 +15,25 @@ class Color(namedtuple('Color', ['hue', 'saturation', 'value'])):
         return Color(self.hue, self.saturation, self.value * factor)
 
     @staticmethod
+    def black():
+        return Color(0, 1, 0)
+
+    @staticmethod
     def random_color():
         return Color(random.uniform(0, 1), 1, 1)
 
     @staticmethod
     def average_color(colors):
         hue_sum = 0
+        sat_sum = 0
+        val_sum = 0
         for color in colors:
             hue_sum += cmath.exp(1j * (color.hue - 0.5) * 2 * cmath.pi)
+            sat_sum += color.saturation
+            val_sum += color.value
+
         return Color(
             cmath.phase(hue_sum / len(colors)) / (2 * cmath.pi) + 0.5,
-            1, 1)
+            1,
+            val_sum / len(colors)
+        )
